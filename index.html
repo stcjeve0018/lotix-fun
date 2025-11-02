@@ -8,7 +8,26 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-light">
-  <main class="py-5">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="#lottery">電子抽獎系統</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false" aria-label="切換導覽">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="main-navbar">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="#lottery">電子抽獎</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#how-to-use">如何使用</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main id="lottery" class="py-5">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-9">
@@ -55,6 +74,10 @@
               </section>
 
               <section class="mb-4">
+                <div class="form-check form-switch mb-3">
+                  <input class="form-check-input" type="checkbox" id="draw-bulk">
+                  <label class="form-check-label" for="draw-bulk">一次抽出此獎項的全部名額</label>
+                </div>
                 <div class="d-flex flex-column flex-md-row gap-2">
                   <button class="btn btn-primary flex-fill" id="draw-button" disabled>開始抽獎</button>
                   <button class="btn btn-outline-secondary flex-fill" id="reset-button">重設抽獎紀錄</button>
@@ -82,6 +105,22 @@
       </div>
     </div>
   </main>
+
+  <section id="how-to-use" class="py-5 bg-white border-top">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-9">
+          <h2 class="h4 fw-bold mb-3">如何使用</h2>
+          <ol class="text-muted lh-lg">
+            <li>準備兩份 Excel：一份是參與者名單（需含姓名與標籤欄位）、一份是獎項清單（建議包含獎項名稱、數量、標籤與圖片）。</li>
+            <li>依序上傳參與者與獎項檔案，系統會自動辨識欄位並提示目前載入狀況。</li>
+            <li>點選欲抽出的獎項，可再搭配標籤篩選符合條件的參與者後開始抽獎；若啟用「一次抽出」選項，系統會批次抽出該獎項全部名額。</li>
+            <li>抽獎結果會即時更新於頁面上，並可透過「重設抽獎紀錄」重新開始。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
