@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lotix-fun.com/sitemap.xml

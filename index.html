@@ -1,11 +1,76 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>電子抽獎系統</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lotix Fun｜免費線上電子抽獎工具｜支援 Excel 名單匯入</title>
+  <meta name="description" content="Lotix Fun 是一款免費線上電子抽獎工具，支援 Excel 名單匯入、標籤分類與抽獎次數限制設定。操作簡單、即開即用，適合活動抽獎、行銷互動與企業員工抽獎使用。">
+  <meta name="keywords" content="電子抽獎, 線上抽獎, 抽獎工具, 免費抽獎系統, Excel 抽獎, 名單抽籤, 活動抽獎, 網頁抽獎, 公司尾牙抽獎, 行銷抽獎">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lotix-fun.com/">
+  <link rel="icon" href="/assets/favicon.ico">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Lotix Fun">
+  <meta property="og:title" content="Lotix Fun｜免費線上電子抽獎工具">
+  <meta property="og:description" content="支援 Excel 名單匯入、標籤分類與抽獎次數限制設定，操作簡單、即開即用，適合活動抽獎與行銷互動使用。">
+  <meta property="og:url" content="https://lotix-fun.com/">
+  <meta property="og:image" content="https://lotix-fun.com/assets/og-cover.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lotix Fun｜免費線上電子抽獎工具">
+  <meta name="twitter:description" content="免費線上電子抽獎工具，支援 Excel 名單匯入與標籤分類，適合活動抽獎與企業行銷使用。">
+  <meta name="twitter:image" content="https://lotix-fun.com/assets/og-cover.jpg">
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"Lotix Fun",
+    "url":"https://lotix-fun.com",
+    "potentialAction":{
+      "@type":"SearchAction",
+      "target":"https://lotix-fun.com/?q={search_term_string}",
+      "query-input":"required name=search_term_string"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"Lotix Fun 電子抽獎工具",
+    "operatingSystem":"Web",
+    "applicationCategory":"UtilitiesApplication",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"TWD"},
+    "url":"https://lotix-fun.com",
+    "description":"Lotix Fun 是免費線上電子抽獎工具，支援 Excel 名單匯入、標籤分類與抽獎次數限制設定，操作簡單、適合活動與行銷互動。",
+    "image":"https://lotix-fun.com/assets/og-cover.jpg",
+    "author":{
+      "@type":"Organization",
+      "name":"Lotix Fun",
+      "url":"https://lotix-fun.com",
+      "logo":"https://lotix-fun.com/assets/favicon.ico"
+    }
+  }
+  </script>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Google tag (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5HM69W2K4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-X5HM69W2K4');
+  </script>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9368682423267167" crossorigin="anonymous"></script>
 </head>
 <body class="bg-light">
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
@@ -125,5 +190,22 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="script.js"></script>
+
+  <div id="cookie-banner" style="position:fixed;inset:auto 0 0 0;padding:12px;background:#111;color:#fff;z-index:9999;display:none;">
+    本網站使用 Cookie 以提供更佳體驗，並使用 Google 服務（Analytics/AdSense）。繼續瀏覽代表你同意本網站的
+    <a href="/privacy.html" style="color:#9cf">隱私權政策</a>。
+    <button id="cookie-ok" style="margin-left:12px;">同意</button>
+  </div>
+  <script>
+    (function(){
+      if(!localStorage.getItem('cookie_ok')){
+        document.getElementById('cookie-banner').style.display='block';
+      }
+      document.getElementById('cookie-ok').addEventListener('click', function(){
+        localStorage.setItem('cookie_ok','1');
+        document.getElementById('cookie-banner').style.display='none';
+      });
+    })();
+  </script>
 </body>
 </html>
