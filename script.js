@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prizeRemainingHint = document.getElementById('prize-remaining-hint');
   const prizeDetail = document.getElementById('prize-detail');
   const drawButton = document.getElementById('draw-button');
+  const drawBulkCheckbox = document.getElementById('draw-bulk');
   const resetButton = document.getElementById('reset-button');
   const messageBox = document.getElementById('lottery-message');
   const winnerName = document.getElementById('winner-name');
@@ -105,6 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if (drawBulkCheckbox) {
+    drawBulkCheckbox.addEventListener('change', () => {
+      updateDrawButtonLabel();
+      updateDrawButtonState();
+    });
+  }
+
   drawButton.addEventListener('click', handleDraw);
 
   resetButton.addEventListener('click', () => {
@@ -131,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePrizeDetail();
     updatePrizeRemainingHint();
     updateWinnerCount();
-    drawButton.textContent = '開始抽獎';
+    updateDrawButtonLabel();
     updateDrawButtonState();
     if (!preserveMessage) {
       clearMessage();
@@ -503,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const isBulkDraw = Boolean(drawBulkCheckbox?.checked);
     const requiredTags = new Set([...prize.normalizedTags, ...getSelectedTags()]);
     const eligibleParticipants = state.participants.filter((participant) => {
       if (state.winnerIds.has(participant.id)) {
@@ -521,20 +530,36 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (isBulkDraw && eligibleParticipants.length < remaining) {
+      showMessage('符合條件的參與者不足以抽出所有名額，請調整條件或取消批次抽獎。', 'warning');
+      return;
+    }
+
     setDrawButtonLoading(true);
     showMessage('抽獎進行中，請稍候...', 'info');
     const rollingInterval = startRollingEffect(eligibleParticipants, winnerName);
 
     setTimeout(() => {
       clearInterval(rollingInterval);
-      const winner = pickRandom(eligibleParticipants);
-      state.winnerIds.add(winner.id);
-      prize.awarded += 1;
+      const drawCount = isBulkDraw ? Math.min(remaining, eligibleParticipants.length) : 1;
+      const winners = isBulkDraw
+        ? pickMultipleRandom(eligibleParticipants, drawCount)
+        : [pickRandom(eligibleParticipants)];
 
-      updateWinnerDisplay(winner, prize, requiredTags);
-      addHistoryEntry(winner, prize, requiredTags);
+      winners.forEach((winner) => {
+        state.winnerIds.add(winner.id);
+      });
+      prize.awarded += winners.length;
 
-      showMessage(`${winner.name} 恭喜獲得「${prize.name}」！`, 'success');
+      const timestamp = new Date().toLocaleString();
+      winners.forEach((winner) => {
+        addHistoryEntry(winner, prize, requiredTags, timestamp);
+      });
+
+      updateWinnerDisplay(winners, prize, requiredTags);
+
+      const winnerNames = winners.map((entry) => entry.name).join('、');
+      showMessage(`${winnerNames} 恭喜獲得「${prize.name}」！`, 'success');
       renderPrizeList();
       updatePrizeDetail();
       updateWinnerCount();
@@ -562,8 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return selected;
   }
 
-  function addHistoryEntry(winner, prize, requiredTags) {
-    const timestamp = new Date().toLocaleString();
+  function addHistoryEntry(winner, prize, requiredTags, timestamp = new Date().toLocaleString()) {
     const filterTags = Array.from(requiredTags).filter(Boolean).map(displayTag).join('、');
     const participantTags = winner.tags.length ? winner.tags.join('、') : '無';
 
@@ -627,31 +651,61 @@ document.addEventListener('DOMContentLoaded', () => {
     historyList.appendChild(fragment);
   }
 
-  function updateWinnerDisplay(winner, prize, requiredTags) {
-    if (!winner || !prize) {
+  function updateWinnerDisplay(winners, prize, requiredTags) {
+    if (!winnerName || !prizeName || !winnerTags) return;
+
+    if (!winners || (Array.isArray(winners) && winners.length === 0) || !prize) {
       winnerName.textContent = '尚未抽獎';
       prizeName.textContent = '';
       winnerTags.textContent = '';
       return;
     }
 
-    winnerName.textContent = winner.name;
-    prizeName.textContent = `🎁 ${prize.name}`;
+    const winnerArray = Array.isArray(winners) ? winners : [winners];
+    const displayNames = winnerArray.map((winner) => winner.name).join('、');
+    const suffix = winnerArray.length > 1 ? `（${winnerArray.length} 名）` : '';
+    winnerName.textContent = displayNames;
+    prizeName.textContent = `🎁 ${prize.name}${suffix}`;
+
     const filterTags = Array.from(requiredTags || []).filter(Boolean).map(displayTag);
     const filterText = filterTags.length ? filterTags.join('、') : '不限';
-    const participantTags = winner.tags.length ? winner.tags.join('、') : '無';
+
     winnerTags.replaceChildren();
+    const conditionRow = document.createElement('div');
     const conditionLabel = document.createElement('span');
-    conditionLabel.className = 'fw-semibold';
+    conditionLabel.className = 'fw-semibold me-1';
     conditionLabel.textContent = '條件標籤：';
-    winnerTags.appendChild(conditionLabel);
-    winnerTags.appendChild(document.createTextNode(filterText));
-    winnerTags.appendChild(document.createElement('br'));
+    conditionRow.appendChild(conditionLabel);
+    conditionRow.appendChild(document.createTextNode(filterText));
+    winnerTags.appendChild(conditionRow);
+
+    const participantRow = document.createElement('div');
     const participantLabel = document.createElement('span');
-    participantLabel.className = 'fw-semibold';
-    participantLabel.textContent = '得獎者標籤：';
-    winnerTags.appendChild(participantLabel);
-    winnerTags.appendChild(document.createTextNode(participantTags));
+    participantLabel.className = 'fw-semibold me-1';
+    participantLabel.textContent = winnerArray.length > 1 ? '得獎者標籤列表：' : '得獎者標籤：';
+    participantRow.appendChild(participantLabel);
+
+    if (winnerArray.length === 1) {
+      const participantTags = winnerArray[0].tags.length ? winnerArray[0].tags.join('、') : '無';
+      participantRow.appendChild(document.createTextNode(participantTags));
+      winnerTags.appendChild(participantRow);
+    } else {
+      participantRow.appendChild(document.createTextNode(`共 ${winnerArray.length} 位，詳見下方列表`));
+      winnerTags.appendChild(participantRow);
+
+      const list = document.createElement('ul');
+      list.className = 'list-unstyled mb-0 mt-2';
+      winnerArray.forEach((winner) => {
+        const item = document.createElement('li');
+        const name = document.createElement('strong');
+        name.textContent = winner.name;
+        item.appendChild(name);
+        const tagsText = winner.tags.length ? winner.tags.join('、') : '無';
+        item.appendChild(document.createTextNode(`：${tagsText}`));
+        list.appendChild(item);
+      });
+      winnerTags.appendChild(list);
+    }
   }
 
   function updateWinnerCount() {
@@ -703,9 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function setDrawButtonLoading(loading) {
     if (loading) {
       drawButton.disabled = true;
-      drawButton.textContent = '抽獎中...';
+      drawButton.textContent = drawBulkCheckbox?.checked ? '批次抽獎中...' : '抽獎中...';
     } else {
-      drawButton.textContent = '開始抽獎';
+      updateDrawButtonLabel();
     }
   }
 
@@ -742,8 +796,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (value === undefined || value === null) {
       return '';
     }
-    const url = String(value).trim();
-    return url;
+
+    if (typeof value === 'object') {
+      if (value.hyperlink) {
+        return String(value.hyperlink).trim();
+      }
+      if (value.text) {
+        return String(value.text).trim();
+      }
+      if (value.Target) {
+        return String(value.Target).trim();
+      }
+    }
+
+    return String(value).trim();
   }
 
   function getTotalPrizeQuantity() {
@@ -753,4 +819,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function getTotalPrizeRemaining() {
     return state.prizes.reduce((sum, prize) => sum + Math.max(prize.quantity - prize.awarded, 0), 0);
   }
+
+  function pickMultipleRandom(list, count) {
+    const pool = [...list];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, count);
+  }
+
+  function updateDrawButtonLabel() {
+    drawButton.textContent = drawBulkCheckbox?.checked ? '批次抽獎' : '開始抽獎';
+  }
+
+  updateDrawButtonLabel();
 });
